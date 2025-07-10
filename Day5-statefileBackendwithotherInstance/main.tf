@@ -9,10 +9,3 @@ resource "aws_instance" "instance" {
   Name = "Day5-stateBackend-instance" 
 }
 }
-resource "aws_s3_bucket" "my_bucket" {
-  bucket = "mystatefiles3bucketfornihaldatatoechecksddfsdfsdfsdaxcdvffdgfd"  # Must be globally unique
-  
- tags = {
-    Name= "MyS3Bucket"
-  }
-}
