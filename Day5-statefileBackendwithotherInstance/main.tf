@@ -1,6 +1,5 @@
-
 resource "aws_instance" "instance" {
-  ami="ami-05ffe3c48a9991133"
+  ami="ami-05ffe3c48a9991133" # This is the default AMI ID for us-east-1
   # ami = "ami-05ffe3c48a9991133" # This is the default AMI ID for us-east-1 
   instance_type = "t2.micro"
 
@@ -11,7 +10,7 @@ resource "aws_instance" "instance" {
 }
 }
 resource "aws_s3_bucket" "my_bucket" {
-  bucket = "mystatefiles3bucketfornihaldatatoechecksdfdgfd"  # Must be globally unique
+  bucket = "mystatefiles3bucketfornihaldatatoechecksddfsdfsdfsdaxcdvffdgfd"  # Must be globally unique
   
  tags = {
     Name= "MyS3Bucket"
