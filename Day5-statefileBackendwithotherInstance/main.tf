@@ -6,6 +6,6 @@ resource "aws_instance" "instance" {
   key_name = "key"
   # key_name = "test1" # This is the default key pair name
  tags = {
-  Name = "Day5-stateBackend-instance" 
+  Name = "Day5-stateBackend-instance-Mayank" 
 }
 }

@@ -1,0 +1,77 @@
+# main.tf
+
+data "aws_secretsmanager_secret" "rds_secrets" {
+  name = "dev-secrets-rds"
+}
+
+data "aws_secretsmanager_secret_version" "rds_secrets_version" {
+  secret_id = "data.aws_secretsmanager_secret.rds_secrets.id"
+}
+
+
+
+# vpc.tf
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_subnet" "subnet_1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "us-east-1a"
+}
+
+resource "aws_subnet" "subnet_2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "us-east-1b"
+}
+
+resource "aws_db_subnet_group" "sub_grp" {
+  name       = "mycutsubnet2"
+  subnet_ids = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id]
+}
+
+# security.tf
+resource "aws_security_group" "rds_sg" {
+  name        = "rds-sg"
+  description = "Allow MySQL access"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# rds.tf
+resource "aws_db_instance" "my_rds" {
+  allocated_storage      = 20
+  engine                 = "mysql"
+  engine_version         = "8.0"
+  instance_class         = "db.t3.micro"
+  identifier             = "my-rds-instance"
+  db_name                 = "myappdb"
+  username               = jsondecode(data.aws_secretsmanager_secret_version.rds_secrets_version.secret_string)["username"]
+  password               = jsondecode(data.aws_secretsmanager_secret_version.rds_secrets_version.secret_string)["password"]
+
+  db_subnet_group_name   = aws_db_subnet_group.sub_grp.name
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  skip_final_snapshot    = true
+depends_on = [aws_db_subnet_group.sub_grp]
+publicly_accessible = false
+
+
+# outputs.tf
+output "db_endpoint" {
+  value = aws_db_instance.mysql.endpoint
+}
